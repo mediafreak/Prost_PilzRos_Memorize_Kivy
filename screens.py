@@ -38,14 +38,13 @@ class PlayScreens(Screen):
     progressmax = NumericProperty(0)
     levelpoint_limits = []
 
-
     def on_enter(self, *args):
         """
         Setzt bei Betreten des Screens  Werte für Progressbar sowie das PlaygroundGrid
         """
         self.levelpoint_limits = self.player.get_levelpoints_min_max()
         self.progressmax = self.player.get_pointdifference_to_next_level()
-        self.progresspoints =self.calculate_progresspoints()
+        self.progresspoints = self.calculate_progresspoints()
 
         self.remove_element(self.playgroundGrid)
         self.playgroundGrid = PlaygroundGrid()
@@ -53,58 +52,47 @@ class PlayScreens(Screen):
 
         self.add_element(self.layout, self.playgroundGrid)
 
-
-    def calculate_progresspoints(self,dt=0):
+    def calculate_progresspoints(self, dt=0):
         """
         fuer Anzeige des Fortschrittbalkens bis zum naechsten Level
         """
-        ## print "LEVELPOINT LIMITS", self.levelpoint_limits
-        ## print "PUUUNKTE", self.player.points
-        return  self.player.points - self.levelpoint_limits['lowerBound']
-
+        # print "LEVELPOINT LIMITS", self.levelpoint_limits
+        # print "PUUUNKTE", self.player.points
+        return self.player.points - self.levelpoint_limits['lowerBound']
 
     def finished_screen(self):
         # Loeschen des PlaygroundGrid bei Verlassen des Screens
         Clock.schedule_once(partial(self.remove_element, self.playgroundGrid), 0.3)
 
-
     def update_progressbar(self):
         """
         Anzeige des Fortschrittbalkens bis zum naechsten Level
         """
-        if self.progresspoints == 0:
-            self.level - 1
         self.progresspoints = self.calculate_progresspoints()
 
         if self.progresspoints is self.progressmax:
             Clock.schedule_once(self.update_progessbar_for_levelchange, .2)
+            # print "update_progressbar",self.progressmax, self.progresspoints, self.levelpoint_limits
 
-        self.level + 1
-        # print "update_progressbar",self.progressmax, self.progresspoints, self.levelpoint_limits
-
-
-    def update_labels(self, dt = 0):
+    def update_labels(self, dt=0):
         """
         Anzeige der aktuellen Punkte und des aktuellen Levels
         """
         # print "update_labels", self.player
         self.level = self.player.level
         self.mempoints = self.player.points
-        #self.header.levelUpLabel.opacity = 1
-
+        # self.header.levelUpLabel.opacity = 1
 
     def remove_element(self, element, dt=0):
         # print("AbstractScreen remove_element()")
         self.layout.remove_widget(element)
 
-
-    def add_element(self, layout, element):
+    @staticmethod
+    def add_element(layout, element):
         layout.add_widget(element)
 
 
-
 class MainScreen(Screen):
-
     @staticmethod
     def exit():
         App.get_running_app().stop()
@@ -119,46 +107,44 @@ class SettingsScreen(Screen):
     mode = NumericProperty(0)
 
     def __init__(self, settings, gameConfig, name):
-        ## print "ResultScreen init()"
-        super(SettingsScreen, self).__init__()
+        # print "ResultScreen init()"
         self.name = name
         self.settings = settings
         self.gameConfig = gameConfig
+        super(SettingsScreen, self).__init__()
 
     def on_pre_enter(self, *args):
         self.level = self.settings.level
         self.points = self.settings.points
-        ## print "SettingsScreen: ",self, self.level, self.points
-
+        # print "SettingsScreen: ",self, self.level, self.points
 
     def update_settings(self, config):
-        #print "SettingScreen update_settings() with config:", config
+        # print "SettingScreen update_settings() with config:", config
         try:
-            self.gameConfig.set_config_in_store( self.settings, int(config) )
+            self.gameConfig.set_config_in_store(self.settings, int(config))
 
-            App.get_running_app().set_game_config( int(config) )
+            App.get_running_app().set_game_config(int(config))
 
-            self.gameConfig.get_level_and_points_from_store( self.settings )
-            #print "Level: ", self.settings.level, "Points: ", self.settings.points, "Mode: ", self.settings.initMode
+            self.gameConfig.get_level_and_points_from_store(self.settings)
+            # print "Level: ", self.settings.level, "Points: ", self.settings.points, "Mode: ", self.settings.initMode
 
             self.update_screen_informations()
         except:
             pass
 
     def update_screen_informations(self):
-        #print "Level: ", self.settings.level, "Points: ", self.settings.points, "Mode: ", self.settings.initMode
+        # print "Level: ", self.settings.level, "Points: ", self.settings.points, "Mode: ", self.settings.initMode
         self.level = self.settings.level
         self.points = self.settings.points
         self.mode = self.settings.initMode
-
 
     def reset_game(self):
         """
         Loest Zuruecksetzen des SettingsScore aus und setzt die GameConfig auf Default-Werte
         """
-        self.gameConfig.reset_score( self.settings )
+        self.gameConfig.reset_score(self.settings)
 
-        App.get_running_app().set_game_config( self.settings.initConfig )
+        App.get_running_app().set_game_config(self.settings.initConfig)
 
         self.update_screen_informations()
         pass
@@ -168,8 +154,9 @@ class MemorizeScreen(PlayScreens):
     """
     Zeigt einzuspraegendes Spielfeld an
     """
+
     def __init__(self, player, gameConfig):
-        ## print("MemScreen init()")
+        # print("MemScreen init()")
         self.player = player
         self.gameConfig = gameConfig
         self.sm = self.gameConfig.sm
@@ -179,7 +166,6 @@ class MemorizeScreen(PlayScreens):
         self.playgroundGrid.set_game_and_config(self.player, self.gameConfig)
         self.buttons = self.layout.children[0]
         self.update_labels()
-
 
     def on_enter(self, *args):
         # print("MemScreen on_enter()")
@@ -192,7 +178,6 @@ class MemorizeScreen(PlayScreens):
 
         self.player.create_actual_array()
         self.playgroundGrid.show_all_tiles()
-
 
     def finished_memorization(self):
         """
@@ -212,9 +197,8 @@ class RememberScreen(PlayScreens):
     """
     tilebarGrid = ObjectProperty(None)
 
-
     def __init__(self, settings, player, gameConfig):
-        ## print "remScreen init()"
+        # print "remScreen init()"
 
         # instance variable unique to each instance
         self.player = player
@@ -225,9 +209,8 @@ class RememberScreen(PlayScreens):
 
         super(RememberScreen, self).__init__()
 
-
     def on_enter(self, *args):
-        ## print self.gameConfig
+        # print self.gameConfig
         super(RememberScreen, self).on_enter()
 
         self.update_tilebar()
@@ -242,17 +225,15 @@ class RememberScreen(PlayScreens):
         self.playgroundGrid.show_all_tiles()
         self.show_tilebar()
 
-
     def init_questions(self):
         """
         Erzeugt Array fuer verdeckte Karten und aktuelle Karte, die abgefragt werden soll (Fragezeichen)
         """
         self.missingIndices = self.playgroundGrid.set_hidden_tiles()
         self.questionNumber = 0
-        ## print self.gameConfig.arrayToShow
+        # print self.gameConfig.arrayToShow
         self.currentQuestion = self.player.arrayToShow[self.missingIndices[self.questionNumber]]
         self.currentQuestion.mark_as_question()
-
 
     def handle_touched_symbol(self, symbol):
         """
@@ -263,9 +244,12 @@ class RememberScreen(PlayScreens):
         # print("RemScreen handle_touched_symbol()")
         self.player.arrayToShow[self.missingIndices[self.questionNumber]].reset()
 
+        print "gesuchtes Symbol: {} - ausgewaehltes Symbol: {}"\
+            .format(self.currentQuestion, Figure(symbol.form, symbol.color))
+
         # check if same color and form as currentQuestion
         if symbol.color == self.currentQuestion.originColor and symbol.form == self.currentQuestion.originForm:
-            rightSound =  self.app.soundMachine.get_right_sound()
+            rightSound = self.app.soundMachine.get_right_sound()
             self.app.soundMachine.play_the_sound(rightSound)
             self.player.arrayToShow[self.missingIndices[self.questionNumber]].mark_as_right()
             self.player.add_points()
@@ -284,10 +268,9 @@ class RememberScreen(PlayScreens):
             # print("RemScreen handle_touched_symbol() no questions left")
             Clock.schedule_once(self.show_resultscreen, 0.4)
 
-        self.update_progressbar() #
+        self.update_progressbar()  #
         self.update_labels()
         self.update_playground()
-
 
     def show_next_question(self):
         # print("RemScreen show_next_question()")
@@ -297,8 +280,7 @@ class RememberScreen(PlayScreens):
         self.update_tilebar()
         self.show_tilebar()
 
-
-    def update_progessbar_for_levelchange(self,dt=0):
+    def update_progessbar_for_levelchange(self, dt=0):
         """
         Zuruecksetzen der Progressbar bei Levelaufstieg, akustischen/visuelles Feedback
         """
@@ -307,14 +289,13 @@ class RememberScreen(PlayScreens):
         self.progresspoints = 0
         self.animate_level_up_label()
 
-        levelUpSound =  App.get_running_app().soundMachine.get_level_up_sound()
+        levelUpSound = App.get_running_app().soundMachine.get_level_up_sound()
         App.get_running_app().soundMachine.play_the_sound(levelUpSound)
 
-        self.player.game.set_level_and_points_in_store(self.settings,self.player)
+        self.player.game.set_level_and_points_in_store(self.settings, self.player)
 
         # print "level up"
         # print "update_progessbar_for_levelchange",self.progressmax, self.progresspoints,self.levelpoint_limits
-
 
     def animate_level_up_label(self):
         """
@@ -322,7 +303,6 @@ class RememberScreen(PlayScreens):
         """
         anim = Animation(opacity=1, duration=.2) + Animation(opacity=1, duration=.8) + Animation(opacity=0, duration=.5)
         anim.start(self.header.levelUpLabel)
-
 
     def update_playground(self):
         # print("RemScreen update_playground()")
@@ -338,11 +318,10 @@ class RememberScreen(PlayScreens):
 
     def show_tilebar(self):
         # print("RemScreen show_tilebar()")
-        print "missing Symbol: ", self.player.arrayToShow[self.missingIndices[self.questionNumber]]
+        print "{}. Fragezeichen: {}".format(self.questionNumber+1, self.player.arrayToShow[self.missingIndices[self.questionNumber]])
 
         self.tilebarGrid.show_tiles_to_choose(
             self.player.arrayToShow[self.missingIndices[self.questionNumber]])
-
 
     def show_resultscreen(self, dt=0):
         """
@@ -356,7 +335,8 @@ class RememberScreen(PlayScreens):
 
     def set_result_screen(self, dt=0):
 
-        self.sm.get_screen(self.gameConfig.RESULT_NAME).set_result_text("suuuuper!\n Gedächtnisleistung:", self.rightAnswers, self.wrongAnswers)
+        self.sm.get_screen(self.gameConfig.RESULT_NAME).set_result_text("suuuuper!\n Gedächtnisleistung:",
+                                                                        self.rightAnswers, self.wrongAnswers)
         self.sm.current = self.gameConfig.RESULT_NAME
         self.header.opacity = 0
 
@@ -369,11 +349,10 @@ class ResultScreen(Screen):
     result_percent = StringProperty("")
 
     def __init__(self, settings, player, name):
-        ## print "ResultScreen init()"
-        super(ResultScreen, self).__init__()
+        # print "ResultScreen init()"
         self.player = player
         self.settings = settings
-
+        super(ResultScreen, self).__init__()
 
     def set_result_text(self, text, right, wrong):
         if wrong > 0:
@@ -388,10 +367,7 @@ class ResultScreen(Screen):
         elif percent < 50:
             self.result_text = self.player.game.RESULT_STRING[0]
 
-        self.result_percent = "%8.2f"%(percent)
-
+        self.result_percent = "%8.2f" % percent
 
     def on_enter(self, *args):
-        self.player.game.set_level_and_points_in_store(self.settings,self.player)
-
-
+        self.player.game.set_level_and_points_in_store(self.settings, self.player)

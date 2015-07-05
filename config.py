@@ -40,6 +40,8 @@ RED_WINE_COLOR = .4, 0, .2
 WRONG_COLOR = 1, 0, 0
 RIGHT_COLOR = 0, 1, 0
 
+JSON_STORE_NAME = 'level_memorize.json'
+
 
 class ScreenConfig(object):
     sm = ScreenManager()
@@ -49,7 +51,7 @@ class ScreenConfig(object):
     RESULT_NAME = 'result'
     SETTINGS_NAME = 'settings'
 
-    RESULT_STRING = ["Versuch’s weiter.","Gut gemacht!","Perfekt!"]
+    RESULT_STRING = ["Versuch’s weiter.", "Gut gemacht!", "Perfekt!"]
 
 
 #########################################################################
@@ -62,9 +64,7 @@ class SettingsJsonStore(JsonStore):
     beinhaltet Funktionen zum Speichern und Laden des Spielstands auf dem System des Spielers
     """
 
-    JSON_STORE_NAME = 'level_memorize.json'
-
-    DIFFICULTY_NAME = ["easy","middle","hard"]
+    DIFFICULTY_NAME = ["easy", "middle", "hard"]
     numberOfDifficulty = len(DIFFICULTY_NAME)
 
     DEFAULT_LEVEL = 1
@@ -75,15 +75,15 @@ class SettingsJsonStore(JsonStore):
     # defaultSettingsStoreData = None # fuer next Version siehe clear_store
 
 
-    def __init__(self, **kwargs):
-        self.fileName = join(App.get_running_app().user_data_dir, self.JSON_STORE_NAME)
+    def __init__(self, filename, **kwargs):
+        self.fileName = join(App.get_running_app().user_data_dir, filename)
         self.settingsStore = JsonStore(self.fileName)
-        print self.settingsStore._data
-
+        super(SettingsJsonStore, self).__init__(filename, **kwargs)
+        print "geladener Spielstand:",self.settingsStore._data
 
     def get_config_from_store_and_set(self):
         storeExists = "config" in self.settingsStore
-        #storeExists = self.settingsStore.store_exists("config") # alternative Schreibweise
+        # storeExists = self.settingsStore.store_exists("config") # alternative Schreibweise
         if storeExists is True:
             # Spieler kann mit zuletzt gespielter Schwierigkeitsstufe starten
             self.initConfig = self.settingsStore["config"]["difficulty"]
@@ -91,7 +91,6 @@ class SettingsJsonStore(JsonStore):
             self.set_default_store()
 
         return self.initConfig
-
 
     def set_default_store(self):
         """
@@ -105,48 +104,44 @@ class SettingsJsonStore(JsonStore):
         self.initConfig = self.DEFAULT_CONFIG
 
         # nach reset des Spielstands müssen alle Werte zurückgesetzt werden
-        for i in range(0,self.numberOfDifficulty):
+        for i in range(0, self.numberOfDifficulty):
             self.settingsStore.put(str(i), index=i,
-                           name=self.DIFFICULTY_NAME[i],
-                           points=self.DEFAULT_POINTS,
-                           level=self.DEFAULT_LEVEL,
-                           mode=self.DEFAULT_MODE)
+                                   name=self.DIFFICULTY_NAME[i],
+                                   points=self.DEFAULT_POINTS,
+                                   level=self.DEFAULT_LEVEL,
+                                   mode=self.DEFAULT_MODE)
         self.settingsStore.put("config", difficulty=self.DEFAULT_CONFIG)
 
         # self.defaultSettingsStoreData =  self.settingsStore._data # fuer next Version siehe clear_store
 
-
     def load_level_and_points_from_store(self):
-        #print "load_level_from_store",self.initConfig, self.settingsStore, str(self.initConfig) in self.settingsStore
+        # print "load_level_from_store",self.initConfig, self.settingsStore, str(self.initConfig) in self.settingsStore
         storeId = str(self.initConfig)
         self.level = self.settingsStore[storeId]["level"]
         self.points = self.settingsStore[storeId]["points"]
 
-        return {'level':self.level,'points': self.points }
-
+        return {'level': self.level, 'points': self.points}
 
     def load_mode_from_store(self):
-        #print "load_mode_from_store",self.initConfig
+        # print "load_mode_from_store",self.initConfig
         storeId = str(self.initConfig)
         self.initMode = self.settingsStore[storeId]["mode"]
 
         return self.initMode
 
-
-    def save_level_and_points_in_store(self,player):
+    def save_level_and_points_in_store(self, player):
         storeId = str(self.initConfig)
         storeExists = storeId in self.settingsStore
-        #storeExists = self.settingsStore.store_exists(storeId) # alternative Schreibweise
+        # storeExists = self.settingsStore.store_exists(storeId) # alternative Schreibweise
 
         if storeExists is True:
             self.settingsStore.put(storeId, index=int(self.initConfig),
-                           name=self.DIFFICULTY_NAME[self.initConfig],
-                           points=player.points,
-                           level=player.level,
-                           mode=self.initMode)
+                                   name=self.DIFFICULTY_NAME[self.initConfig],
+                                   points=player.points,
+                                   level=player.level,
+                                   mode=self.initMode)
             self.settingsStore.put("config", difficulty=self.initConfig)
-        #print "save_level_and_points_in_store",len(self.settingsStore),self.settingsStore._data
-
+            print "gesicherter Spielstand:",self.settingsStore._data
 
     def save_config_in_store(self, config):
         """
@@ -155,13 +150,11 @@ class SettingsJsonStore(JsonStore):
         self.initConfig = config
         self.settingsStore.put("config", difficulty=self.initConfig)
 
-
     # TODO fuer next Version > ueberpruefe, ob zu loeschender Store == default Store > wenn ja, ist reset-button inaktiv
     def clear_store(self):
-        #print self.settingsStore._is_changed
-        #if not self.defaultSettingsStoreData is self.settingsStore._data:
+        # print self.settingsStore._is_changed
+        # if not self.defaultSettingsStoreData is self.settingsStore._data:
         self.settingsStore.store_clear()
-
 
 
 #########################################################################
@@ -173,6 +166,8 @@ class GameConfig(ScreenConfig):
     """
     enthält die Konfigurationsdaten des Spiels in der mittleren Schwierigkeitsstufe
     """
+
+    CONFIG_CLASS_NAME = "Normale Schwierigkeitsstufe"
 
     DEFAULT_COLUMNS = 5
     DEFAULT_ROWS = 3
@@ -199,11 +194,9 @@ class GameConfig(ScreenConfig):
 
     arrayToShow = []
 
-
     def __init__(self):
-        #print "GameConfig init()"
+        # print "GameConfig init()"
         super(GameConfig, self).__init__()
-
 
     # getter-Methoden ermöglichen Polymorphie
     def get_max_number_of_cards(self):
@@ -245,46 +238,49 @@ class GameConfig(ScreenConfig):
     def get_necessary_correct_answers(self):
         return self.necessaryCorrectAnswers
 
+    def __repr__(self):
+        return  "{}: {}x{} mit {}".format(self.CONFIG_CLASS_NAME, self.DEFAULT_COLUMNS, self.DEFAULT_ROWS, self.DEFAULT_CARDORDER)
+
 
     ###############
     #
     # Settings
     #
     ###############
-    def get_level_and_points_from_store(self,store):
-        #print "get_level_from_store",store
+    def get_level_and_points_from_store(self, store):
+        # print "get_level_from_store",store
         levelAndPointsFromStore = store.load_level_and_points_from_store()
         self.level = levelAndPointsFromStore['level']
         self.points = levelAndPointsFromStore['points']
 
-
-    def get_mode_from_store(self,store):
-        #print "get_mode_from_store",store
+    def get_mode_from_store(self, store):
+        # print "get_mode_from_store",store
         self.initMode = store.load_mode_from_store()['mode']
-        #print ">>>> mode", self.initMode
+        # print ">>>> mode", self.initMode
 
-
-    def set_level_and_points_in_store(self,store,player):
-        #print "set_level_and_points_in_store",store
+    @staticmethod
+    def set_level_and_points_in_store(store, player):
+        # print "set_level_and_points_in_store",store
         store.save_level_and_points_in_store(player)
 
-
-    def set_config_in_store(self,store,config_id):
-        #print "set_config_in_store",store, config_id
+    @staticmethod
+    def set_config_in_store(store, config_id):
+        # print "set_config_in_store",store, config_id
         store.save_config_in_store(config_id)
 
-
-    def reset_score(self,store):
-        #print "reset_score"
+    @staticmethod
+    def reset_score(store):
+        # print "reset_score"
         store.clear_store()
         store.set_default_store()
-
 
 
 class EasyConfig(GameConfig):
     """
     enthält die Konfigurationsdaten des Spiels in der einfachen Schwierigkeitsstufe
     """
+
+    CONFIG_CLASS_NAME = "Einfache Schwierigkeitsstufe"
 
     DEFAULT_COLUMNS = 4
     DEFAULT_ROWS = 3
@@ -297,19 +293,19 @@ class EasyConfig(GameConfig):
 
     # Überschreiben der normalen Konfigurations-Getter
     def get_number_of_columns(self):
-         return self.DEFAULT_COLUMNS
+        return self.DEFAULT_COLUMNS
 
     def get_number_of_rows(self):
-         return self.DEFAULT_ROWS
+        return self.DEFAULT_ROWS
 
     def get_number_of_forms(self):
-        return self.DEFAULT_FORMS-1
+        return self.DEFAULT_FORMS - 1
 
     def get_number_of_colors(self):
-        return self.DEFAULT_COLORS-1
+        return self.DEFAULT_COLORS - 1
 
     def get_number_of_cards(self):
-        return self.DEFAULT_NUMBER_CARDS-1
+        return self.DEFAULT_NUMBER_CARDS - 1
 
     def get_number_of_hidden_cards(self):
         return self.DEFAULT_NUMBER_HIDDEN_CARDS - 1
@@ -321,17 +317,19 @@ class EasyConfig(GameConfig):
         return self.DEFAULT_CARDORDER
 
 
-
 class HardConfig(GameConfig):
     """
     enthält die Konfigurationsdaten des Spiels in der schwierigsten Spielstufe
     """
 
+    CONFIG_CLASS_NAME = "Hohe Schwierigkeitsstufe"
+
     DEFAULT_COLUMNS = 7
     DEFAULT_ROWS = 4
 
     # Reihenfolge angepasst auf 7x4 Feld
-    DEFAULT_CARDORDER = [10, 17, 9, 11, 16, 18, 8, 12, 15, 19, 1, 26, 2, 25, 22, 5, 23, 4, 3, 24, 7, 13, 14, 20, 0, 21, 6, 27]
+    DEFAULT_CARDORDER = [10, 17, 9, 11, 16, 18, 8, 12, 15, 19, 1, 26, 2, 25, 22, 5, 23, 4, 3, 24, 7, 13, 14, 20, 0, 21,
+                         6, 27]
 
     DEFAULT_MODULO = 4  # schneller Schwierigkeitszuwachs s. Player.increase_level()
 
@@ -341,10 +339,10 @@ class HardConfig(GameConfig):
         return self.DEFAULT_COLUMNS * self.DEFAULT_ROWS
 
     def get_number_of_columns(self):
-         return self.DEFAULT_COLUMNS
+        return self.DEFAULT_COLUMNS
 
     def get_number_of_rows(self):
-         return self.DEFAULT_ROWS
+        return self.DEFAULT_ROWS
 
     def get_number_of_forms(self):
         return self.DEFAULT_FORMS + 2
@@ -365,7 +363,7 @@ class HardConfig(GameConfig):
         return self.DEFAULT_CARDORDER
 
 
-CONFIG_CLASS_NAME = [EasyConfig(),GameConfig(),HardConfig()]
+CONFIG_CLASS_NAME = [EasyConfig(), GameConfig(), HardConfig()]
 
 
 class Player(object):
@@ -385,21 +383,21 @@ class Player(object):
         self.level_temp = settings.level
         self.level = settings.DEFAULT_LEVEL
         self.points = settings.points
-        #print "Player:", self.game, self.level, self.points, self.game.level, self.game.points
 
-        for x in range(0,self.level_temp-1):
+        print self.game
+        print "Spielstand: Level {} - {} Punkte".format(self.level, self.points)
+
+        for x in range(0, self.level_temp - 1):
             self.increase_level()
-
 
     def initialize_game(self):
         self.create_actual_array()
-
 
     def create_actual_array(self):
         """
         erstellt Symbole mit zufälliger Form und Farbe und fügt sie in der Reihenfolge ihrer Erzeugung in ein Array ein
         """
-        #print "Player create_actual_array() "
+        # print "Player create_actual_array() "
 
         self.actual = []
 
@@ -410,7 +408,7 @@ class Player(object):
             newFigure = Figure(randomForm, randomColor)
 
             if str(newFigure) in str(self.actual):
-                #print "Schon drin, neuer Versuch"
+                # print "Schon drin, neuer Versuch"
                 continue
             else:
                 self.actual.append(newFigure)
@@ -431,27 +429,24 @@ class Player(object):
 
         self.create_array_with_cardorder()
 
-
     def create_array_with_cardorder(self):
         """
         sortiert die Symbole entsprechend der Reihenfolge zum Anzeigen im GridLayout von oben links nach unten rechts
         """
-        #print "Player create_actual_array()"
+        # print "Player create_actual_array()"
 
         self.arrayToShow = []
         for x in range(0, self.game.get_max_number_of_cards()):
             self.arrayToShow.append(None)
 
         for x in range(0, self.numberOfPlaygroundCards):
-
             self.arrayToShow[self.game.DEFAULT_CARDORDER[x]] = self.actual[x]
 
-        #print "MemorizeApp actual:", self.actual
-        #print "Array in Reihenfolge von links oben nach rechts unten:", self.arrayToShow
-
+        print "MemorizeApp Symbolfolge:", self.actual
+        print "Array in Reihenfolge von links oben nach rechts unten:", self.arrayToShow
 
     def increase_level(self):
-        #print "config increase_level()", self.numberOfPlaygroundCards
+        # print "config increase_level()", self.numberOfPlaygroundCards
 
         self.level += 1
 
@@ -460,7 +455,7 @@ class Player(object):
             self.numberOfPlaygroundCards += 1
 
         if self.level % self.increaseModulo == (self.game.get_number_of_modulo() - 1) and \
-                    not self.numberOfForms == self.game.DEFAULT_MAX_FORMS:
+                not self.numberOfForms == self.game.DEFAULT_MAX_FORMS:
             self.numberOfForms += 1
 
         if self.level % self.increaseModulo == (self.game.get_number_of_modulo() - 2) and \
@@ -473,23 +468,24 @@ class Player(object):
                 not self.numberOfTilebarCards == self.game.DEFAULT_MAX_TILEBAR_CARDS:
             self.numberOfTilebarCards += 1
 
+        print "Level erhöht: {} Karten, {} verdeckte Karten, {} mögliche Formen, {} mögliche Farben, {} Auswahlkarten"\
+            .format(self.numberOfPlaygroundCards, self.numberOfHiddenCards,
+                    self.numberOfForms, self.numberOfColors, self.numberOfTilebarCards)
 
     def add_points(self):
-        #print "add_points"
+        # print "add_points"
         self.points += (self.level + 1)
 
         if self.points >= self.get_levelpoints_min_max()['upperBound']:
             self.increase_level()
-
 
     def get_pointdifference_to_next_level(self):
         """
         für Max-Wert der ProgressBar in KV-Datei
         """
         distance = (self.level + 1) * self.game.get_necessary_correct_answers()
-        #print "get_pointdifference_to_next_level", distance
+        # print "get_pointdifference_to_next_level", distance
         return distance
-
 
     def get_levelpoints_min_max(self):
         """
@@ -499,10 +495,9 @@ class Player(object):
 
         n = self.level - 1
         # 0,2,5,9,14,20,27...-Folge > (n+1)*(n+2)/2-1 oder (.5*n+1.5)*n
-        lowerBound = int( (.5*n+1.5)*n ) * self.game.get_necessary_correct_answers()
+        lowerBound = int((.5 * n + 1.5) * n) * self.game.get_necessary_correct_answers()
         upperBound = lowerBound + distance
-        return {'lowerBound':lowerBound,'upperBound':upperBound }
-
+        return {'lowerBound': lowerBound, 'upperBound': upperBound}
 
 
 #########################################################################
@@ -511,13 +506,12 @@ class Player(object):
 #
 #########################################################################
 class Figure(object):
-
     colorOfBackground = BLACK_COLOR
 
     statusAnswer = 0
 
     def __init__(self, form, color):
-        #print("Figure __init__()")
+        # print("Figure __init__()")
         self.form = form
         self.color = color
         self.originColor = color
@@ -552,7 +546,6 @@ class Figure(object):
         # #print("Figure get_origin_copy()", self)
         copy = Figure(self.originForm, self.originColor)
         return copy
-
 
     def __repr__(self):
         """
@@ -615,7 +608,7 @@ class Figure(object):
         else:
             colorText = "Farbe unbekannt"
 
-        return formText + " (" + colorText + ")"
+        return "{} ({})".format(formText, colorText)
 
 
 class SoundMachine(object):
@@ -626,12 +619,12 @@ class SoundMachine(object):
     pathToSound = "sounds"
 
     # Sounds from http://soundbible.com
-    rightSound = os.path.join(pathToSound,"right.wav")
-    wrongSound = os.path.join(pathToSound,"wrong.wav")
-    levelUpSound = os.path.join(pathToSound,"levelup.wav")
+    rightSound = os.path.join(pathToSound, "right.wav")
+    wrongSound = os.path.join(pathToSound, "wrong.wav")
+    levelUpSound = os.path.join(pathToSound, "levelup.wav")
 
     def get_right_sound(self):
-        #print "Soundmachine:",self.rightSound
+        # print "Soundmachine:",self.rightSound
         return self.load_the_sound(self.rightSound)
 
     def get_wrong_sound(self):
@@ -640,13 +633,14 @@ class SoundMachine(object):
     def get_level_up_sound(self):
         return self.load_the_sound(self.levelUpSound)
 
-    def load_the_sound(self, sound):
+    @staticmethod
+    def load_the_sound(sound):
+        # noinspection PyBroadException
         try:
             sound = SoundLoader.load(sound)
             return sound
         except:
             print "Soundmodul fehlt"
-
 
     @staticmethod
     def play_the_sound(sound):
@@ -656,5 +650,3 @@ class SoundMachine(object):
                 pass
             except:
                 print "Sound kann nicht abgespielt werden"
-
-

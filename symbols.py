@@ -22,6 +22,7 @@ class Symbol(Widget):
     """
     Oberklasse aller Symbole (wie Circle, Square usw.)
     """
+
     def __init__(self, color, figure, **kwargs):
         # print("Symbol init()")
         self.colorRGB = color
@@ -48,82 +49,69 @@ class Symbol(Widget):
             return
 
         if figure.statusAnswer is True:
-            self.colorOfBorder = Color( RIGHT_COLOR )
+            self.colorOfBorder = Color(RIGHT_COLOR)
         else:
-            self.colorOfBorder = Color( WRONG_COLOR )
+            self.colorOfBorder = Color(WRONG_COLOR)
 
 
 # Circle mit Ellipse in KV-Datei
 class Circle(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(Circle, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # Circle mit Line.Ellipse in KV-Datei
 class CircleOutline(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(CircleOutline, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # Offener Circle mit Line.Ellipse in KV-Datei
 class MouthOutline(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(MouthOutline, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # Offener Circle mit Line.Ellipse in KV-Datei
 class PacmanOutline(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(PacmanOutline, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # Offener Circle mit Line.Ellipse in KV-Datei
 class Ring(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(Ring, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # Square mit Rectangle in KV-Datei
 class Square(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(Square, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # Square mit Linie > Rectanle in KV-Datei
 class SquareOutline(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(SquareOutline, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # gleichseitiges Dreieck mit Vertices
 class EquilateralTriangle(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(EquilateralTriangle, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # gleichseitiges ungefuelltes Dreieck mit Vertices
 class EquilateralTriangleOutline(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(EquilateralTriangleOutline, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # rechtwinkliges Dreieck mit Vertices
 class RightAngledTriangle(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(RightAngledTriangle, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # rechtwinkliges ungefuelltes Dreieck mit Vertices
 class RightAngledTriangleOutline(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(RightAngledTriangleOutline, self).__init__(color, figure, **kwargs)
+    pass
 
 
 # Kreuz mit Rectangles
 class Cross(Symbol):
-    def __init__(self, color, figure, **kwargs):
-        super(Cross, self).__init__(color, figure, **kwargs)
-
+    pass
 
 
 # Platzhalter für verdeckte Symbole
@@ -142,7 +130,7 @@ class QuestionTile(Label):
         self.colorOfLine = WHITE_COLOR
         self.figure = figure.get_origin_copy()
         super(QuestionTile, self).__init__(**kwargs)
-        #super(QuestionTile, self).__init__(color=color, figure=figure.get_origin_copy(), **kwargs)
+        # super(QuestionTile, self).__init__(color=color, figure=figure.get_origin_copy(), **kwargs)
         self.text = "?"
         self.font_size = "60sp"
 
@@ -152,9 +140,9 @@ class QuestionTile(Label):
         if figure.get_origin_copy().statusAnswer == 0:
             return
         if figure.get_origin_copy().statusAnswer is True:
-            self.colorOfBorder = Color( RIGHT_COLOR )
+            self.colorOfBorder = Color(RIGHT_COLOR)
         else:
-            self.colorOfBorder = Color( WRONG_COLOR )
+            self.colorOfBorder = Color(WRONG_COLOR)
 
 
 # Platzhalter fürs Gridlayout

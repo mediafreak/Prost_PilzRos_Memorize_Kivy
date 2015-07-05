@@ -2,3 +2,7 @@
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
+config.pyc
+screens.pyc
+screenwidgets.pyc
+symbols.pyc
