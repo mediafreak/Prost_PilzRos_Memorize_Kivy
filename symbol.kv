@@ -1,0 +1,199 @@
+#:kivy 1.0.9
+
+#:set paddingOfFigur .23
+#:set sizeOfFigure .77
+#:set bgColorOfCards (.85,.85,.85)
+#:set dashParamTiles [5, 5]
+
+
+#########################################################################
+#
+# Figures/Symbols
+#
+#########################################################################
+<Symbol>:
+    canvas.before:
+        # Farbe zur Markierung richtig oder falsch erinnerter Karten
+        Color:
+            rgb: self.colorOfBorder
+        Rectangle:
+            size: self.width + 9, self.height+9
+            pos: self.pos[0]-5, self.pos[1]-5
+
+        # Farbe der Kartenfläche
+        Color:
+            rgb: bgColorOfCards
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+<Circle>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Ellipse:
+            pos: root.center_x - (root.width - root.width*paddingOfFigur)/2., root.center_y - (root.height - root.width*paddingOfFigur)/2
+            #pos: self.pos[0] + 10, self.pos[1] + 10
+            size: root.width * sizeOfFigure, root.height * sizeOfFigure
+        Line:
+            width: 1.4
+            ellipse: (root.x+(root.width*paddingOfFigur/2), root.y+(root.width*paddingOfFigur/2), root.width-root.width*paddingOfFigur, root.height-root.width*paddingOfFigur, 0, 360)
+
+
+<CircleOutline>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Line:
+            width: 1.4
+            ellipse: (root.x+(root.width*paddingOfFigur/2), root.y+(root.width*paddingOfFigur/2), root.width-root.width*paddingOfFigur, root.height-root.width*paddingOfFigur, 0, 360)
+
+
+<Square>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Rectangle:
+            #size: self.size
+            #pos: self.pos
+            pos: root.center[0] - (root.width - root.width*paddingOfFigur)/2, root.center[1] - (root.height - root.width*paddingOfFigur)/2
+            size: root.width * sizeOfFigure, root.height * sizeOfFigure
+        Line:
+            width: 1.4
+            rectangle: root.center[0] - (root.width - root.width*paddingOfFigur)/2, root.center[1] - (root.height - root.width*paddingOfFigur)/2, root.width * sizeOfFigure, root.height * sizeOfFigure
+
+
+<SquareOutline>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Line:
+            width: 1.4
+            rectangle: root.center[0] - (root.width - root.width*paddingOfFigur)/2, root.center[1] - (root.height - root.width*paddingOfFigur)/2, root.width * sizeOfFigure, root.height * sizeOfFigure
+
+
+<EquilateralTriangle>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Triangle:
+            points: root.pos[0]+root.width*paddingOfFigur/2,root.pos[1]+root.width*paddingOfFigur/2, (root.pos[0] + root.width/2), (root.pos[1]+ root.height)-root.width*paddingOfFigur/2, (root.pos[0]+ root.width)-root.width*paddingOfFigur/2, (root.pos[1])+root.width*paddingOfFigur/2
+
+
+<EquilateralTriangleOutline>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Line:
+            width: 1.4
+            points: root.pos[0]+root.width*paddingOfFigur/2,root.pos[1]+root.width*paddingOfFigur/2, (root.pos[0] + root.width/2), (root.pos[1]+ root.height)-root.width*paddingOfFigur/2, (root.pos[0]+ root.width)-root.width*paddingOfFigur/2, (root.pos[1])+root.width*paddingOfFigur/2,root.pos[0]+root.width*paddingOfFigur/2,root.pos[1]+root.width*paddingOfFigur/2
+
+
+<RightAngledTriangle>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Triangle:
+            points: root.pos[0]+root.width*paddingOfFigur/2,root.pos[1]+root.width*paddingOfFigur/2, (root.pos[0])+root.width*paddingOfFigur/2, (root.pos[1]+ root.height)-root.width*paddingOfFigur/2, (root.pos[0]+ root.width)-root.width*paddingOfFigur/2, (root.pos[1])+root.width*paddingOfFigur/2
+
+
+<RightAngledTriangleOutline>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Line:
+            width: 1.4
+            points: root.pos[0]+root.width*paddingOfFigur/2,root.pos[1]+root.width*paddingOfFigur/2, (root.pos[0])+root.width*paddingOfFigur/2, (root.pos[1]+ root.height)-root.width*paddingOfFigur/2, (root.pos[0]+ root.width)-root.width*paddingOfFigur/2, (root.pos[1])+root.width*paddingOfFigur/2,root.pos[0]+root.width*paddingOfFigur/2,root.pos[1]+root.width*paddingOfFigur/2
+
+
+<Ring>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Ellipse:
+            pos: root.center_x - (root.width - root.width*paddingOfFigur)/2., root.center_y - (root.height - root.width*paddingOfFigur)/2
+            size: root.width*paddingOfFigur, root.height*paddingOfFigur
+        Line:
+            width: 1.4
+            ellipse: (root.x+(root.width*paddingOfFigur/2), root.y+(root.width*paddingOfFigur/2), root.width-root.width*paddingOfFigur, root.height-root.width*paddingOfFigur, 0, 360)
+
+<PacmanOutline>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Line:
+            width: 1.4
+            ellipse: (self.x+(root.width*paddingOfFigur/2), self.y+(root.width*paddingOfFigur/2), self.width-root.width*paddingOfFigur, self.height-root.width*paddingOfFigur, 125, 415)
+        Line:
+            width: 1.4
+            points: root.center_x+self.width/2-root.width*paddingOfFigur/1.2, root.center_y-root.width*paddingOfFigur/1.25, root.center_x, root.center_y, root.center_x+self.width/2-root.width*paddingOfFigur/1.2, root.center_y+root.width*paddingOfFigur/1.1
+
+
+<MouthOutline>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Line:
+            width: 1.4
+            bezier: root.x+(root.width*paddingOfFigur/2), root.center_y, root.center_x, root.center_y - (root.height - 3*root.width*paddingOfFigur)/2, root.center_x + (root.width - root.width*paddingOfFigur)/2, root.center_y #3*root.width*paddingOfFigur -> offenerer Mund
+        Line:
+            width: 1.4
+            bezier: root.x+(root.width*paddingOfFigur/2), root.center_y, root.center_x, root.center_y - (root.height)/2, root.center_x + (root.width - root.width*paddingOfFigur)/2, root.center_y
+
+
+<Cross>:
+    canvas:
+        Color:
+            rgb: self.colorRGB
+        Rectangle:
+            #size: self.size
+            #pos: self.pos
+            pos: root.center[0] - (root.width - root.width * paddingOfFigur)/8, root.center[1] - (root.height - root.width*paddingOfFigur)/2
+            size: root.width * sizeOfFigure/4, root.height * sizeOfFigure
+        Rectangle:
+            #size: self.size
+            #pos: self.pos
+            pos: root.center[0] - (root.width - root.width * paddingOfFigur)/2, root.center[1] - (root.height - root.width*paddingOfFigur)/8
+            size: root.width * sizeOfFigure, root.height * sizeOfFigure/4
+
+
+# leeres Kartenfeld
+<Nothing>:
+    canvas:
+        Line:
+            rectangle: self.x+1,self.y+1,self.width-3,self.height-3
+            #dash_offset: dashParamTiles[0]
+            #dash_length: 3
+
+
+# verdecktes Kartenfeld (leere Anzeige)
+<HiddenTile>:
+    canvas:
+        Color:
+            rgb: self.colorOfBackground
+        Rectangle:
+            size: self.width,self.height
+            pos: self.pos
+        Color:
+            rgb: self.colorOfLine
+        Line:
+            rectangle: self.x+1,self.y+1,self.width-3,self.height-3
+            dash_offset: dashParamTiles[0]
+            dash_length: dashParamTiles[1]
+
+
+# aktuell erfragte Karte
+<QuestionTile>:
+    canvas.before:
+        Color:
+            rgb: self.colorOfBackground
+        Rectangle:
+            size: self.width,self.height
+            pos: self.pos
+        Color:
+            rgb: self.colorOfLine
+        Line:
+            rectangle: self.x+1,self.y+1,self.width-3,self.height-3
+            dash_offset: dashParamTiles[0]
+            dash_length: dashParamTiles[1]

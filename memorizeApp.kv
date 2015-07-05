@@ -1,0 +1,473 @@
+#:kivy 1.0.9
+
+#:set colorOfButton [.2, .7, .9, .5]
+#:set colorOfButtonFont [1, 1, 1, .8]
+#:set colorOfLabel [.2, .7, .9, .8]
+
+#:set paddingTopPG 14
+#:set paddingBottomPG 25
+#:set paddingTopTG 22.2
+#:set paddingMain [300, 100]
+#:set paddingResult [300, 190]
+#:set paddingSettings [200, 150]
+
+#:set sizeCardsPG_normal 120
+#:set sizeCardsPG_hard 85
+#:set sizeCardsTG 78.5
+
+
+#########################################################################
+#
+# General Widgets
+#
+#########################################################################
+# workaround to make borders visible
+#<Widget>:
+#    canvas.after:
+#        Line:
+#            rectangle: self.x+1,self.y+1,self.width-1,self.height-1
+#            dash_offset: 4
+#            dash_length: 3
+
+
+# Oberklasse fuer alle Buttons
+<MyButton@Button>:
+    background_down: "disabled"
+    background_normal: "disabled"
+    background_color: colorOfButton
+    color: colorOfButtonFont
+    on_press:
+        self.background_color = colorOfLabel
+    on_release:
+        self.background_color = colorOfButton
+
+
+# Oberklasse fuer alle Labels
+<MyLabel@Label>:
+    text_size: self.size
+
+
+# Oberklasse fuer alle Setting-Elemente
+<SettingLabelHeadline@MyLabel>:
+    color: colorOfLabel
+    size_hint: 1, .5
+    halign: "left"
+    valign: "bottom"
+    padding: 0,4
+
+<SettingLabelLegendLeft@MyLabel>:
+    size_hint: .105, 1
+    halign: "left"
+    valign: "middle"
+
+<SettingLabelLegendRight@MyLabel>:
+    size_hint: .12, 1
+    halign: "right"
+    valign: "middle"
+
+
+# Oberklasse fuer Modal-Dialog
+<MyModalView@ModalView>:
+    size_hint: None,None
+    size: 300,200
+    background_color: colorOfLabel
+
+<MyModalViewButtonBox@BoxLayout>:
+    orientation: 'horizontal'
+    size:150,100
+    padding:20,20
+    spacing:10
+
+<MyModalViewLabel@MyLabel>:
+    font_size: 15
+    line_height:1.2
+    halign: "center"
+    valign: "top"
+    padding:20,40
+
+
+#########################################################################
+#
+# Screens
+#
+#########################################################################
+# main / first screen of the app
+<MainScreen>:
+
+    GridLayout:
+        size: root.size
+        cols:1
+        rows:3
+        spacing:50
+        padding:paddingMain
+
+        MyButton:
+            text: "Settings"
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.current = app.gameConfig.SETTINGS_NAME
+        MyButton:
+            text: "Start game"
+            on_press:
+                app.start_game()
+                root.manager.transition.direction = 'left'
+                root.manager.current = app.gameConfig.MEMORIZE_NAME
+
+        MyButton:
+            text: "Quit"
+            on_press:
+                root.exit()
+
+
+<SettingsScreen>:
+    # gameConfig erbt Name von ScreenConfig
+    name: app.gameConfig.SETTINGS_NAME
+
+    BoxLayout:
+        id: settingBox
+        orientation: 'vertical'
+        size_hint: 1, 1
+        padding: paddingSettings
+
+        canvas.after:
+            Color:
+                rgb: colorOfButton
+            Line:
+                width: 1.
+                rectangle: self.x+ self.padding[0]-15, self.y + self.padding[1] -15 , self.width - self.padding[2]*2 +30 ,self.height- self.padding[3]*2 + 15
+
+        # Score Box
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 1, 0.2
+
+            SettingLabelHeadline:
+                text: "Your score:"
+
+            BoxLayout:
+                size_hint: 1, .5
+                orientation: 'horizontal'
+
+                SettingLabelLegendLeft:
+                    id: settingsLevel
+                    value: root.level
+                    text: "Level: "+str( self.value )
+
+                SettingLabelLegendRight:
+                    id: settingsPoints
+                    value:root.points
+                    text: "Points: "+str( self.value )
+        # Ende Score Box
+
+        # Mode Box
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 1, 0.2
+            opacity: 1
+
+
+            SettingLabelHeadline:
+                text: "Choose your mode:"
+
+            BoxLayout:
+                id: modeBox
+                size_hint: 1, .5
+                orientation: 'horizontal'
+                popupPro: popupPro.__self__
+
+                SettingLabelLegendLeft:
+                    text: "Zen"
+
+                # Modales Fenster fuer Hinweis auf Pro-Version bei Auswahl des Time-Mode
+                MyModalView:
+                    id: popupPro
+                    on_parent:
+                        if self.parent == modeBox: self.parent.remove_widget(self)
+
+                    MyModalViewLabel:
+                        text: "You need the Pro version of this \n game to play the time mode! :-)"
+
+                    MyModalViewButtonBox:
+
+                        MyButton:
+                            size_hint: .5, .2
+                            text: 'Okay'
+                            on_release:
+                                settingsMode.value = 0  # auskommentieren bei implementiertem Time-Mode
+                                popupPro.dismiss()
+                # Ende MyModalView
+
+                Slider:
+                    id: settingsMode
+                    value: app.settings.initMode
+                    range: (0,1)
+                    step: 1
+                    on_value:
+                        self.parent.popupPro.open()  # auskommentieren bei implementiertem Time-Mode
+
+                SettingLabelLegendRight:
+                    text: "Time"
+        # Ende Mode Box
+
+        # Difficulty Box
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 1, 0.22
+
+            SettingLabelHeadline:
+                text: "Difficulty level"
+
+            BoxLayout:
+                size_hint: 1, .5
+                orientation: 'horizontal'
+
+                SettingLabelLegendLeft:
+                    text: "Easy"
+
+                Slider:
+                    id: settingsChallenge
+                    value: app.settings.initConfig
+                    range: (0,2)
+                    step: 1
+                    on_value:
+                        root.update_settings(int(self.value) )
+                        settingsChallenge.value = self.value
+                        settingsLevel.value = root.level
+                        settingsPoints.value = root.points
+                        settingsMode.value = root.mode
+
+
+                SettingLabelLegendRight:
+                    text: "Hard"
+        # Ende Difficulty Box
+
+        # Button Box
+        BoxLayout:
+            size_hint: 1, .2
+            orientation: 'horizontal'
+            spacing:20
+            padding: 0, 20, 0, 0
+            id: buttonBox
+            popup: popup.__self__
+
+            # Modales Fenster fuer komplettes Loeschen der Settings/des Scores
+            MyModalView:
+                id: popup
+                on_parent:
+                    if self.parent == buttonBox: self.parent.remove_widget(self)
+
+                MyModalViewLabel:
+                    text: "Do you want to reset your game? \n You remove all your personal scores."
+
+                MyModalViewButtonBox:
+
+                    MyButton:
+                        size_hint: .5, .2
+                        text: 'Yes'
+                        value: 1
+                        on_release:
+                            root.reset_game()
+                            settingsChallenge.value = self.value
+                            settingsLevel.value = root.level
+                            settingsPoints.value = root.points
+                            settingsMode.value = root.mode
+                            popup.dismiss()
+
+                    MyButton:
+                        size_hint: .5, .2
+                        text: 'No'
+                        on_release:
+                            popup.dismiss()
+            # Ende MyModalView
+
+            MyButton:
+                text: 'Reset Game'
+                on_release:
+                    self.parent.popup.open()
+                    # TODO fuer next Version > ueberpruefe, ob zu loeschender Store == default Store > wenn ja, ist reset-button inaktiv
+                    # if not app.settings.defaultSettingsStoreData is app.settings.settingsStore._data: self.parent.popup.open()
+
+            MyButton:
+                text: "Back to main"
+                on_press:
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = app.gameConfig.MAIN_NAME
+        # Ende Button Box
+
+
+<MemorizeScreen>:
+    name: app.gameConfig.MEMORIZE_NAME
+    playgroundGrid: PG
+    header: scoreHeader
+    layout: box
+
+    MyPlaygroundBox:
+        id: box
+        paddingValue: (root.width - ( ( app.gameConfig.get_number_of_columns() * box.sizeTiles ) + ( app.gameConfig.get_number_of_columns() * PG.spacing[0] )  ) ) / 2
+        padding: box.paddingValue,paddingTopPG,box.paddingValue,paddingBottomPG
+
+        ScoreHeader:
+            id: scoreHeader
+
+        PlaygroundGrid:
+            id: PG
+
+        GridLayout:
+            size_hint: 1, 0.2
+            cols: 2
+            padding:  0,paddingTopTG,0,0
+            spacing:20
+
+            MyButton:
+                text: "Main"
+                size_hint: 0.5, 1
+                on_press:
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = app.gameConfig.MAIN_NAME
+                    app.restart_game()
+
+            MyButton:
+                size_hint: 0.5, 1
+                text: "Gemerkt!"
+                on_press: root.finished_memorization()
+
+
+
+<RememberScreen>:
+    # gameConfig erbt Name von ScreenConfig
+    name: app.gameConfig.REMEMBER_NAME
+    playgroundGrid: PG
+    tilebarGrid: TB
+    layout: box
+    header: scoreHeader
+
+    MyPlaygroundBox:
+        id: box
+        paddingValue: (root.width - ( ( app.gameConfig.get_number_of_columns() * box.sizeTiles ) + ( app.gameConfig.get_number_of_columns() * PG.spacing[0] )  ) ) / 2
+        padding: box.paddingValue,paddingTopPG,box.paddingValue,paddingBottomPG
+
+        ScoreHeader:
+            id: scoreHeader
+
+        PlaygroundGrid:
+            id: PG
+
+        TileBarGrid:
+            id: TB
+
+
+<ResultScreen>:
+    name: app.gameConfig.RESULT_NAME
+
+    GridLayout:
+        size: root.size
+        cols:1
+        rows:3
+        #spacing:5
+        padding:paddingResult
+
+        MyLabel:
+            text: root.result_text
+            halign: "center"
+            valign: "top"
+            font_size: 20
+            size_hint: 1, .15
+
+        MyLabel:
+            text: str(root.result_percent) + " % "
+            halign: "left"
+            valign: "top"
+            font_size: 40
+            size_hint: 1, .35
+
+        MyButton:
+            text: "Next challenge"
+            size_hint: 1, .5
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.current = app.gameConfig.MEMORIZE_NAME
+
+
+#########################################################################
+#
+# Widgets of Screens
+#
+#########################################################################
+# liest aktuelle config aus settings
+<MyPlaygroundBox@BoxLayout>:
+    orientation: 'vertical'
+    size_hint: 1, 1
+    config: str( app.settings.initConfig )
+    sizeTiles: sizeCardsPG_hard if self.config == '2' else sizeCardsPG_normal
+
+
+<PlaygroundGrid>:
+    size_hint: 1, .8
+    cols: app.gameConfig.get_number_of_columns()
+    rows: app.gameConfig.get_number_of_rows()
+    padding: 0, 0, 0, 5
+    spacing: 20
+
+
+<TileBarGrid>:
+    id: tG
+    size_hint: 1, 0.2
+    cols: app.player.numberOfTilebarCards
+    spacing:20
+    paddingValue: (root.width - ( ( app.player.numberOfTilebarCards * sizeCardsTG ) + ( app.player.numberOfTilebarCards * tG.spacing )  ) ) / 2
+    padding:  tG.paddingValue,paddingTopTG,tG.paddingValue,0
+
+    canvas:
+        Color:
+            rgb: 0, 0, 0
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+<ScoreHeader@BoxLayout>:
+    id: scoreHeader
+    size_hint: 1, None
+    height: 40
+    spacing:10
+    levelUpLabel: levelUpLabel
+
+    MyLabel:
+        id: levelUpLabel
+        size_hint: .15, 1
+        text: "Next Level"
+        halign: "center"
+        valign: "middle"
+        opacity: 0
+
+        canvas.before:
+            Color:
+                rgba: colorOfButton
+            Rectangle:
+                pos: self.pos[0],self.pos[1]+5
+                size: self.width,self.height-10
+
+    MyLabel:
+        text: "Level: "+str(root.parent.parent.level)
+        size_hint: .1, 1
+        halign: "right"
+        valign: "middle"
+
+    ProgressBar:
+        max: root.parent.parent.progressmax
+        value: root.parent.parent.progresspoints
+        size_hint: .45, 1
+
+    MyLabel:
+        text: str(root.parent.parent.level + 1)
+        size_hint: .1, 1
+        halign: "left"
+        valign: "middle"
+
+    MyLabel:
+        text: str(root.parent.parent.mempoints)
+        font_size: 40
+        size_hint: .2, 1
+        halign: "right"
+
+
