@@ -1,4 +1,4 @@
-Prost_PilzRos_Memorize_Kivy
+jpr_np_memorize_kivy
 ====
 Spielprogrammierung mit Kivy-Framework  <br />
 von Natalia Prost und Jenny Pilz-Rosenthal
