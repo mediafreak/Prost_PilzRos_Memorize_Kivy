@@ -1,3 +1,5 @@
+NOTE: This is a project for a university course. Don't make pull requests if you are not member of this project!
+
 jpr_np_memorize_kivy
 ====
 Spielprogrammierung mit Kivy-Framework  <br />
